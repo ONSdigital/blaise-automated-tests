@@ -104,7 +104,7 @@ namespace Blaise.Tests.Helpers.Instrument
             Console.WriteLine($"InstrumentHelper UninstallSurvey: Removing questionnaire {BlaiseConfigurationHelper.InstrumentName}");
             _blaiseQuestionnaireApi.UninstallQuestionnaire(BlaiseConfigurationHelper.InstrumentName, BlaiseConfigurationHelper.ServerParkName);
 
-            if (!SurveyHasUninstalled(BlaiseConfigurationHelper.InstrumentName, 60000))
+            if (!SurveyHasUninstalled(BlaiseConfigurationHelper.InstrumentName, 10000))
             {
                 CheckIfInstrumentIsErroneous(BlaiseConfigurationHelper.InstrumentName);
             }
@@ -112,7 +112,11 @@ namespace Blaise.Tests.Helpers.Instrument
 
         public QuestionnaireInterviewType GetSurveyInterviewType()
         {
-            return _blaiseQuestionnaireApi.GetQuestionnaireInterviewType(BlaiseConfigurationHelper.InstrumentName, BlaiseConfigurationHelper.ServerParkName);
+            var questionnaireInterviewerType = _blaiseQuestionnaireApi.GetQuestionnaireInterviewType(BlaiseConfigurationHelper.InstrumentName, BlaiseConfigurationHelper.ServerParkName);
+
+            Console.WriteLine($"InstrumentHelper GetSurveyInterviewType: Questionnaire {BlaiseConfigurationHelper.InstrumentName} has the interviewer type of {questionnaireInterviewerType}");
+
+            return questionnaireInterviewerType;
         }
 
         public bool SurveyExists(string instrumentName)

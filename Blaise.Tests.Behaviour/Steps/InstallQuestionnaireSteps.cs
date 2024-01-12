@@ -48,14 +48,14 @@ namespace Blaise.Tests.Behaviour.Steps
         [Then(@"the questionnaire is configured to capture respondents data via Cati")]
         public void ThenTheInstrumentIsConfiguredToCaptureRespondentsDataViaCati()
         {
-            var surveyConfiguration = InstrumentHelper.GetInstance().GetSurveyInterviewType();
-            Assert.AreEqual(QuestionnaireInterviewType.Cati, surveyConfiguration);
+            var questionnaireInterviewType = InstrumentHelper.GetInstance().GetSurveyInterviewType();
+            Assert.AreEqual(QuestionnaireInterviewType.Cati, questionnaireInterviewType);
         }
 
         [AfterScenario("instrument")]
         public void CleanUpScenario()
         {
-            InstrumentHelper.GetInstance().UninstallSurvey();
+            //InstrumentHelper.GetInstance().UninstallSurvey();
         }
 
         [AfterTestRun]
