@@ -1,5 +1,8 @@
 ﻿using System;
 using Blaise.Tests.Helpers.Browser;
+using Blaise.Tests.Helpers.Questionnaire;
+using Blaise.Tests.Helpers.Configuration;
+using Blaise.Nuget.Api.Contracts.Enums;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
 
@@ -9,19 +12,56 @@ namespace Blaise.Tests.Behaviour.Steps
     public sealed class CommonHooks
     {
         private readonly ScenarioContext _scenarioContext;
+        private readonly QuestionnaireHelper _questionnaireHelper;
 
-        public CommonHooks(ScenarioContext scenarioContext)
+        private const string ErroneousQuestionnaireAscii = @"
+                 _____                                            _ 
+                |  ___|                                          | |
+                | |__ _ __ _ __ ___  _ __   ___  ___  _   _ ___  | |
+                |  __| '__| '__/ _ \| '_ \ / _ \/ _ \| | | / __| | |
+                | |__| |  | | | (_) | | | |  __/ (_) | |_| \__ \ |_|
+                \____/_|  |_|  \___/|_| |_|\___|\___/ \__,_|___/ (_)
+                ";
+        private static readonly string ErroneousQuestionnaireMessage =
+        $"The test questionnaire {BlaiseConfigurationHelper.QuestionnaireName} is in an erroneous state.\n" +
+        "Restart Blaise and uninstall the erroneous questionnaire via Blaise Server Manager.";
+
+        public CommonHooks(ScenarioContext scenarioContext, QuestionnaireHelper questionnaireHelper)
         {
             _scenarioContext = scenarioContext;
+            _questionnaireHelper = questionnaireHelper;
+        }
+
+        [OneTimeSetUp]
+        public void CheckQuestionnaireStatusBeforeTestRun()
+        {
+            CheckQuestionnaireStatus(_questionnaireHelper);
+        }
+
+        [BeforeScenario(Order = -1)]
+        public void CheckQuestionnaireStatusBeforeScenario()
+        {
+            CheckQuestionnaireStatus(_questionnaireHelper);
         }
 
         [AfterStep]
-        public void OnError()
+        public void HandleTestError()
         {
-            if (_scenarioContext.TestError != null)
+            if (_scenarioContext.TestError!= null)
             {
                 BrowserHelper.OnError(TestContext.CurrentContext, _scenarioContext);
-                throw new Exception(_scenarioContext.TestError.Message);
+                Assert.Fail($"Test error: {_scenarioContext.TestError.Message}");
+            }
+        }
+
+        private static void CheckQuestionnaireStatus(QuestionnaireHelper questionnaireHelper)
+        {
+            var questionnaireStatus = questionnaireHelper.GetQuestionnaireStatus();
+
+            if (questionnaireStatus == QuestionnaireStatusType.Erroneous)
+            {
+                //Assert.Fail($"{ErroneousQuestionnaireAscii}\n{ErroneousQuestionnaireMessage}\n");
+                throw new InvalidOperationException($"{ErroneousQuestionnaireAscii}\n{ErroneousQuestionnaireMessage}");
             }
         }
     }
